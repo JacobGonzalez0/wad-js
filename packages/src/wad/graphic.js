@@ -1,25 +1,31 @@
-var Graphic = {
+const { createCanvas, loadImage } = require('canvas')
+class Graphic{
     
-    data : null,
-    width : null,
-    height : null,
-    xOffset : null,
-    yOffset : null,
+    constructor(data){
+        this.data = null;
+        this.width = null;
+        this.height = null;
+        this.xOffset = null;
+        this.yOffset = null;
+        this.load(data);
+    }
+   
+    setData(x,y,val) {
+        console.log(x);
+        console.log(y);
+        console.log(val);
+        console.log((y * this.width) + x);
+        this.data[(y * this.width) + x] = val;
+    }
     
-    load : function (lumpData) {
+    load(lumpData){
+        
         var i;
         var j;
         var dv = new DataView(lumpData);
         
         this.data = [];
         
-        function setData(x,y,val) {
-            console.log(x);
-            console.log(y);
-            console.log(val);
-            console.log((y * this.width) + x);
-            this.data[(y * this.width) + x] = val;
-        }
         
         this.width = dv.getUint16(0,true);
         this.height = dv.getUint16(2,true);
@@ -65,19 +71,27 @@ var Graphic = {
                 position += 1;
             }
         }
-    },
+    }
     
-    toCanvas : function (wad) {
-        var scaleSize = 3;
-        var canvas = document.createElement("canvas");
-        canvas.width = this.width * scaleSize;
-        canvas.height = this.height * scaleSize;
-        var context = canvas.getContext("2d");
+    /**
+     * 
+     * @param {*} wad | Wad file to grab pallete data
+     * @returns 
+     */
+    getImageData(wad, palette = 0) {
+
+        let p = palette;
+
+    
+        const canvas = createCanvas(
+            this.width , 
+            this.height)
+        var context = canvas.getContext('2d');
         var imageData = context.createImageData(this.width,this.height);
         var size = this.width * this.height;
         for (var i = 0; i < size; i++) {
             if (this.data[i] != -1) {
-                col = hexToRgb(wad.playpal.palettes[0][this.data[i]]);
+                let col = this.hexToRgb(wad.playpal.palettes[p][this.data[i]]);
                 imageData.data[(i*4)+0] = col.r;
                 imageData.data[(i*4)+1] = col.g;
                 imageData.data[(i*4)+2] = col.b;
@@ -89,16 +103,20 @@ var Graphic = {
                 imageData.data[(i*4)+3] = 0;
             }
         }
-        var newCanvas = document.createElement("CANVAS");
-        newCanvas.width = imageData.width;
-        newCanvas.height = imageData.height;
-        newCanvas.getContext("2d").putImageData(imageData, 0, 0);
-        context.scale(scaleSize, scaleSize);
-        context.mozImageSmoothingEnabled = false;
-        context.msImageSmoothingEnabled = false;
-        context.imageSmoothingEnabled = false;
-        context.drawImage(newCanvas, 0, 0);
-        return canvas;
+        context.putImageData(imageData, 0, 0, 0, 0, canvas.width, canvas.height)
+        const buffer = canvas.toBuffer('image/png')
+        return buffer;
     }
     
+
+
+    hexToRgb(hex) {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    }
 }
+module.exports = Graphic;

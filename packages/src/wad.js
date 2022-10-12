@@ -1,10 +1,11 @@
 const FileReader = require("filereader")
+const Playpal = require("./wad/playpal")
 const fs = require("fs");
 const { off } = require("process");
 
 class Wad { 
 
-    constructor(){
+    constructor(dir){
 
         this.onProgress = null;
         this.onLoad     = null;
@@ -15,7 +16,9 @@ class Wad {
         this.lumps      = [];
         this.playpal    = null;
         this.errormsg   = null;
+        this.load(dir)
 
+        this.playpal = new Playpal(this.getLumpByName("PLAYPAL"));
     }
     
 
@@ -51,6 +54,7 @@ class Wad {
         //Get an arraybuffer for DataView
     
         const ab = new ArrayBuffer(file.byteLength);
+        this.data = ab;
         const view = new Uint8Array(ab); 
         for (let i = 0; i < file.length; ++i) {
             view[i] = file[i];
@@ -92,6 +96,8 @@ class Wad {
                             lumpName += String.fromCharCode(dViewer.getUint8(j));
                         }
                     }
+
+                    
                     
                     let lumpEntry = {
                         pos  : lumpPos,
@@ -100,7 +106,6 @@ class Wad {
                         index : index
                     }
                     index++
-                    console.log(lumpEntry)
                     this.lumps.push(lumpEntry)
                 }
                 offset+= chunkSize;
@@ -155,7 +160,7 @@ class Wad {
     getLumpByName(name) {
         for (var i = 0; i < this.numlumps; i++) {
             if (this.lumps[i].name == name) {
-                l = this.lumps[i];
+                let l = this.lumps[i];
                 return this.data.slice(l.pos,l.pos+l.size);
             }
         }
@@ -184,7 +189,7 @@ class Wad {
     }
     
     getLump(index) {
-        l = this.lumps[index];
+        let l = this.lumps[index];
         return this.data.slice(l.pos,l.pos+l.size);
     }
 
