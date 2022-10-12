@@ -305,8 +305,6 @@ class MapData{
         if (this.format == "UDMF") {
            throw Error("Unable to render "+this.format+" format maps.");
         }
-
-        
         
         var mwidth = this.right - this.left;
         var mheight = this.bottom - this.top;
