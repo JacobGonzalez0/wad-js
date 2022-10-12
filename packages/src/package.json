@@ -1,0 +1,12 @@
+{
+  "name": "src",
+  "version": "1.0.0",
+  "main": "main.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "nodemon main.js"
+  },
+  "dependencies": {
+    "filereader": "^0.10.3"
+  }
+}
