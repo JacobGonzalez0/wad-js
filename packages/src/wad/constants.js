@@ -4,6 +4,7 @@ module.exports = {
     "MAP" : "map",
     "MAPDATA" : "mapdata",
     "MUSIC" : "music",
+    "DEMO" : "demo",
     "MIDI" : "midi",
     "MP3" : "mp3",
     "PNG" : "png",
