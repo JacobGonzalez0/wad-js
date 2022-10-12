@@ -1,5 +1,6 @@
 const FileReader = require("filereader")
 const Playpal = require("./wad/playpal")
+const Colormap = require("./wad/colormap")
 const fs = require("fs");
 const { off } = require("process");
 
@@ -15,10 +16,12 @@ class Wad {
         this.data       = null;
         this.lumps      = [];
         this.playpal    = null;
+        this.colormap   = null;
         this.errormsg   = null;
         this.load(dir)
 
         this.playpal = new Playpal(this.getLumpByName("PLAYPAL"));
+        this.colormap = new Colormap(this.getLumpByName("COLORMAP"));
     }
     
 
