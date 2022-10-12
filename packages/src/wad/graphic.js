@@ -76,7 +76,7 @@ class Graphic{
     /**
      * 
      * @param {*} wad | Wad file to grab pallete data
-     * @returns 
+     * @returns Buffer with png data
      */
     getImageData(wad, palette = 0) {
 
@@ -84,7 +84,7 @@ class Graphic{
 
     
         const canvas = createCanvas(
-            this.width , 
+            this.width, 
             this.height)
         var context = canvas.getContext('2d');
         var imageData = context.createImageData(this.width,this.height);
@@ -103,6 +103,7 @@ class Graphic{
                 imageData.data[(i*4)+3] = 0;
             }
         }
+        
         context.putImageData(imageData, 0, 0, 0, 0, canvas.width, canvas.height)
         const buffer = canvas.toBuffer('image/png')
         return buffer;

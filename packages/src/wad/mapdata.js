@@ -1,43 +1,49 @@
-var MapData = {
+const Constants = require("./constants")
+const { createCanvas, loadImage } = require('canvas')
+class MapData{
     
-    // internal data
+    constructor(wad, mapname){
+        // internal data
 
-    things : null,
-    vertexes : null,
-    linedefs : null,
-    sidedefs : null,
-    segs : null,
-    ssectors : null,
-    nodes : null,
-    sectors : null,
-    reject : null,
-    blockmap : null,
-    wad : null,
-    
-    thingTable : null,
+        this.things = null;
+        this.vertexes = null;
+        this.linedefs = null;
+        this.sidedefs = null;
+        this.segs = null;
+        this.ssectors = null;
+        this.nodes = null;
+        this.sectors = null;
+        this.reject = null;
+        this.blockmap = null;
+        this.wad = null;
 
-    // map information
+        this.thingTable = null;
 
-    name : null,
-    music : null,
-    format : null,
-    
-    //boundaries
-    
-    top : null,
-    left : null,
-    bottom : null,
-    right : null,
+        // map information
+
+        this.name = null;
+        this.music = null;
+        this.format = null;
+
+        //boundaries
+
+        this.top = null;
+        this.left = null;
+        this.bottom = null;
+        this.right = null;
+        this.load( wad, mapname)
+    }
     
     //functions
     
-    load : function(wad,mapname) {
+    load( wad, mapname) {
         var mapLumpIndex = wad.getLumpIndexByName(mapname);
-        
         this.wad = wad;
         this.reject = null;
         this.blockmap = null;
         this.nodesExist;
+        let mapdatalumps = [];
+        let nextLump;
 
         // Detect the format of the map first
         if (wad.lumps[mapLumpIndex + 1].name == "TEXTMAP") this.format = "UDMF";
@@ -46,7 +52,7 @@ var MapData = {
             var pos = 1;
             mapdatalumps = [];
             nextLump = wad.lumps[mapLumpIndex + pos].name;
-            while (MAPLUMPS.indexOf(nextLump) > -1) {
+            while (Constants.MAPLUMPS.indexOf(nextLump) > -1) {
                 mapdatalumps.push(nextLump);
                 pos += 1;
                 if (wad.lumps.length == pos + mapLumpIndex) break;
@@ -56,20 +62,18 @@ var MapData = {
             if (mapdatalumps.indexOf("BEHAVIOR") > -1) this.format = "Hexen";
             else this.format = "Doom";
 
-            function getMapLump(lumpName) {
-                return wad.getLump(mapLumpIndex + mapdatalumps.indexOf(lumpName) + 1);
-            }
+
         }
 
         if (this.format == "Doom") {
-            this.parseThings(getMapLump("THINGS"));
-            this.parseLinedefs(getMapLump("LINEDEFS"));
-            this.parseSidedefs(getMapLump("SIDEDEFS"));
-            this.parseVertexes(getMapLump("VERTEXES"));
-            this.parseSegs(getMapLump("SEGS"));
-            this.parseSsectors(getMapLump("SSECTORS"));
-            this.parseNodes(getMapLump("NODES"));
-            this.parseSectors(getMapLump("SECTORS"));
+            this.parseThings(wad.getLump(mapLumpIndex + mapdatalumps.indexOf("THINGS") + 1));
+            this.parseLinedefs(wad.getLump(mapLumpIndex + mapdatalumps.indexOf("LINEDEFS") + 1));
+            this.parseSidedefs(wad.getLump(mapLumpIndex + mapdatalumps.indexOf("SIDEDEFS") + 1));
+            this.parseVertexes(wad.getLump(mapLumpIndex + mapdatalumps.indexOf("VERTEXES") + 1));
+            this.parseSegs(wad.getLump(mapLumpIndex + mapdatalumps.indexOf("SEGS") + 1));
+            this.parseSsectors(wad.getLump(mapLumpIndex + mapdatalumps.indexOf("SSECTORS") + 1));
+            this.parseNodes(wad.getLump(mapLumpIndex + mapdatalumps.indexOf("NODES") + 1));
+            this.parseSectors(wad.getLump(mapLumpIndex + mapdatalumps.indexOf("SECTORS") + 1));
             //this.parseReject(wad.getLump(mapLumpIndex + 9));
             //this.parseBlockmap(wad.getLump(mapLumpIndex + 10));
             this.calculateBoundaries();
@@ -96,9 +100,9 @@ var MapData = {
             if (wad.lumpExists("D_"+mapname)) this.music = "D_"+mapname; // Doom 1
         }
         if (Doom2DefaultMusic[mapname]!= null) this.music = Doom2DefaultMusic[mapname];
-    },
+    }
     
-    calculateBoundaries : function() {
+    calculateBoundaries() {
         this.top = this.vertexes[0].y;
         this.left = this.vertexes[0].x;
         this.bottom = this.vertexes[0].y;
@@ -109,15 +113,15 @@ var MapData = {
             if (this.vertexes[i].y < this.top) this.top = this.vertexes[i].y;
             if (this.vertexes[i].y > this.bottom) this.bottom = this.vertexes[i].y;
         }
-    },
+    }
     
-    parseThings : function(lump) {
+    parseThings(lump) {
         this.things = [];
         var entryLen = 10;
         var dv = new DataView(lump);
         var len = dv.byteLength / entryLen;
         for (var i = 0; i < len; i++) {
-            r = Object.create(Thing);
+            let r = Object.create(Thing);
             r.x = dv.getInt16((i * entryLen) + 0, true);
             r.y = dv.getInt16((i * entryLen) + 2, true);
             r.angle = dv.getInt16((i * entryLen) + 4, true);
@@ -125,28 +129,28 @@ var MapData = {
             r.flags = dv.getInt16((i * entryLen) + 8, true);
             this.things.push(r);
         }
-    },
+    }
     
-    parseVertexes : function(lump) {
+    parseVertexes(lump) {
         this.vertexes = [];
         var entryLen = 4;
         var dv = new DataView(lump);
         var len = dv.byteLength / entryLen;
         for (var i = 0; i < len; i++) {
-            r = Object.create(Vertex);
+            let r = Object.create(Vertex);
             r.x = dv.getInt16((i * entryLen) + 0,true);
             r.y = dv.getInt16((i * entryLen) + 2,true);
             this.vertexes.push(r);
         }
-    },
+    }
     
-    parseLinedefs : function(lump) {
+    parseLinedefs(lump) {
         this.linedefs = [];
         var entryLen = 14;
         var dv = new DataView(lump);
         var len = dv.byteLength / entryLen;
         for (var i = 0; i < len; i++) {
-            r = Object.create(Linedef);
+            let r = Object.create(Linedef);
             r.vx1 = dv.getUint16((i * entryLen) + 0,true);
             r.vx2 = dv.getUint16((i * entryLen) + 2,true);
             r.flags = dv.getUint16((i * entryLen) + 4,true);
@@ -156,50 +160,51 @@ var MapData = {
             r.left = dv.getUint16((i * entryLen) + 12,true);
             this.linedefs.push(r);
         }
-    },
+    }
     
-    parseSidedefs : function(lump) {
+    parseSidedefs(lump) {
         this.sidedefs = [];
         var entryLen = 30;
         var dv = new DataView(lump);
         var len = dv.byteLength / entryLen;
         for (var i = 0; i < len; i++) {
-            r = Object.create(Sidedef);
+            let r = Object.create(Sidedef);
             r.xOffset = dv.getUint16((i * entryLen) + 0,true);
             r.yOffset = dv.getUint16((i * entryLen) + 2,true);
-            r.upper = readName(dv,(i * entryLen) + 4);
-            r.lower = readName(dv,(i * entryLen) + 12);
-            r.middle = readName(dv,(i * entryLen) + 20);
+            r.upper = this.readName(dv,(i * entryLen) + 4);
+            r.lower = this.readName(dv,(i * entryLen) + 12);
+            r.middle = this.readName(dv,(i * entryLen) + 20);
             r.sector = dv.getUint16((i * entryLen) + 28,true);
             this.sidedefs.push(r);
         }
-    },
+    }
     
-    parseSectors : function(lump) {
+    parseSectors(lump) {
         this.sectors = [];
         var entryLen = 26;
         var dv = new DataView(lump);
         var len = dv.byteLength / entryLen;
         for (var i = 0; i < len; i++) {
-            r = Object.create(Sector);
+            let r = Object.create(Sector);
             r.zFloor = dv.getUint16((i * entryLen) + 0,true);
             r.zCeil = dv.getUint16((i * entryLen) + 2,true);
-            r.floorFlat = readName(dv,(i*entryLen)+4);
-            r.ceilFlat = readName(dv,(i*entryLen)+12);
+            r.floorFlat = this.readName(dv,(i*entryLen)+4);
+            r.ceilFlat = this.readName(dv,(i*entryLen)+12);
             r.light = dv.getUint16((i * entryLen) + 20,true);
             r.type = dv.getUint16((i * entryLen) + 22,true);
             r.tag = dv.getUint16((i * entryLen) + 24,true);
             this.sectors.push(r);
         }
-    },
+    }
+
     
-    parseSegs : function(lump) {
+    parseSegs(lump) {
         this.segs = [];
         var entryLen = 12;
         var dv = new DataView(lump);
         var len = dv.byteLength / entryLen;
         for (var i = 0; i < len; i++) {
-            r = Object.create(Seg);
+            let r = Object.create(Seg);
             r.vx1 = dv.getUint16((i * entryLen) + 0,true);
             r.vx2 = dv.getUint16((i * entryLen) + 2,true);
             r.angle = dv.getUint16((i * entryLen) + 4,true);
@@ -208,28 +213,28 @@ var MapData = {
             r.offset = dv.getUint16((i * entryLen) + 10,true);
             this.segs.push(r);
         }
-    },
+    }
     
-    parseSsectors : function(lump) {
+    parseSsectors(lump) {
         this.ssectors = [];
         var entryLen = 4;
         var dv = new DataView(lump);
         var len = dv.byteLength / entryLen;
         for (var i = 0; i < len; i++) {
-            r = Object.create(Subsector);
+            let r = Object.create(Subsector);
             r.segCount = dv.getUint16((i * entryLen) + 0,true);
             r.first = dv.getUint16((i * entryLen) + 2,true);
             this.ssectors.push(r);
         }
-    },
+    }
     
-    parseNodes : function(lump) {
+    parseNodes(lump) {
         this.nodes = [];
         var entryLen = 28;
         var dv = new DataView(lump);
         var len = dv.byteLength / entryLen;
         for (var i = 0; i < len; i++) {
-            r = Object.create(Node);
+            let r = Object.create(Node);
             r.partitionX = dv.getUint16((i * entryLen) + 0,true);
             r.partitionY = dv.getUint16((i * entryLen) + 2,true);
             r.changeX = dv.getUint16((i * entryLen) + 4,true);
@@ -250,15 +255,15 @@ var MapData = {
             r.childLeft = dv.getUint16((i * entryLen) + 26,true);
             this.nodes.push(r);
         }
-    },
+    }
 
-    parseHexenThings : function(lump) {
+    parseHexenThings(lump) {
         this.things = [];
         var entryLen = 20;
         var dv = new DataView(lump);
         var len = dv.byteLength / entryLen;
         for (var i = 0; i < len; i++) {
-            r = Object.create(HexenThing);
+            let r = Object.create(HexenThing);
             r.tid = dv.getInt16((i * entryLen) + 0, true);
             r.x = dv.getInt16((i * entryLen) + 2, true);
             r.y = dv.getInt16((i * entryLen) + 4, true);
@@ -272,15 +277,15 @@ var MapData = {
             }
             this.things.push(r);
         }
-    },
+    }
 
-    parseHexenLinedefs : function(lump) {
+    parseHexenLinedefs(lump) {
         this.linedefs = [];
         var entryLen = 16;
         var dv = new DataView(lump);
         var len = dv.byteLength / entryLen;
         for (var i = 0; i < len; i++) {
-            r = Object.create(HexenLinedef);
+            let r = Object.create(HexenLinedef);
             r.vx1 = dv.getUint16((i * entryLen) + 0,true);
             r.vx2 = dv.getUint16((i * entryLen) + 2,true);
             r.flags = dv.getUint16((i * entryLen) + 4,true);
@@ -292,22 +297,24 @@ var MapData = {
             r.left = dv.getUint16((i * entryLen) + 14,true);
             this.linedefs.push(r);
         }
-    },
+    }
         
-    toCanvas : function(width,height) {
+    getImageData(width = 640,height = 480) {
           
         // Early-out if it is not a Doom format map.
         if (this.format == "UDMF") {
-           var output = document.createElement("div");
-           output.innerHTML = "Unable to render "+this.format+" format maps.";
-           return output;
+           throw Error("Unable to render "+this.format+" format maps.");
         }
 
-        var canvas = document.createElement("canvas");
+        
         
         var mwidth = this.right - this.left;
         var mheight = this.bottom - this.top;
         var r;
+
+        const canvas = createCanvas(
+            width, 
+            height)
         
         if ((height/width) < (mwidth/mheight)) {
             canvas.height = height + 10;
@@ -325,7 +332,7 @@ var MapData = {
         context.imageSmoothingEnabled = false;
         for (var i = 0; i < this.linedefs.length; i++) {
             //draw every linedef
-            l = this.linedefs[i];
+            let l = this.linedefs[i];
             
             var x1 = l.getVx1(this).x;
             var y1 = l.getVx1(this).y;
@@ -367,11 +374,11 @@ var MapData = {
             context.lineTo(Math.floor(x2) + 5.5, Math.floor(canvas.height - y2 - 5) + 0.5);
             context.stroke();
         }
-        
-        return canvas;
-    },
+        const buffer = canvas.toBuffer('image/png')
+        return buffer;
+    }
     
-    getDoomThingName : function(id) {
+    getDoomThingName(id) {
         for (var prop in DoomThingTable) {
             if (DoomThingTable.hasOwnProperty(prop)) {
                 if (DoomThingTable[prop] === id) {
@@ -379,9 +386,9 @@ var MapData = {
                 }
             }
         }
-    },
+    }
     
-    getThingTable : function() {
+    getThingTable() {
         this.thingTable = [];
         for (var i = 0; i < this.things.length; i++) {
             if (this.thingTable[this.things[i].type] == undefined) {
@@ -391,12 +398,22 @@ var MapData = {
             }
         }
         return this.thingTable;
-    },
+    }
     
-    getThingCount : function(type) {
+    getThingCount(type) {
         var output = 0;
         for (var i = 0; i < this.things.length; i++) {
             if (this.things[i].type == type) output += 1;
+        }
+        return output;
+    }
+
+    readName(dv,pos) {
+        let output = "";
+        for (let j = pos; j < pos + 8; j++) {
+            if (dv.getUint8(j) != 0) {
+                output += String.fromCharCode(dv.getUint8(j));
+            }
         }
         return output;
     }
@@ -672,3 +689,4 @@ var Doom2DefaultMusic = {
     "MAP31":"D_EVIL",
     "MAP32":"D_ULTIMA"
 }
+module.exports = MapData;

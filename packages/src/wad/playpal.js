@@ -1,3 +1,5 @@
+const { createCanvas, loadImage } = require('canvas')
+
 class Playpal {
     
     constructor(data){
@@ -32,13 +34,15 @@ class Playpal {
         }
         
     }
-    
-    toCanvas() {
-        var scaleSize = 16;
+    /**
+     * 
+     * @returns Buffer with png data
+     */
+    getImageData() {
         //then lets make a canvas to put this image onto
-        var canvas = document.createElement("canvas");
-        canvas.width = 16 * scaleSize;
-        canvas.height = 16 * scaleSize;
+        const canvas = createCanvas(
+            16, 
+            16)
         var context = canvas.getContext("2d");
         var imageData = context.createImageData(16,16);
         //image pixel data is stored in a linear array
@@ -47,23 +51,25 @@ class Playpal {
         //palettes are 256 colours, so the canvas is going
         //to be 16x16.
         for (var i = 0; i < 1024; i+=4) {
-            col = hexToRgb(this.palettes[0][i/4]);
+            let col = this.hexToRgb(this.palettes[0][i/4]);
             imageData.data[i] = col.r;
             imageData.data[i+1] = col.g;
             imageData.data[i+2] = col.b;
             imageData.data[i+3] = 255;
         }
-        var newCanvas = document.createElement("CANVAS");
-        newCanvas.width = imageData.width;
-        newCanvas.height = imageData.height;
-        newCanvas.getContext("2d").putImageData(imageData, 0, 0);
-        context.scale(scaleSize, scaleSize);
-        context.mozImageSmoothingEnabled = false;
-        context.msImageSmoothingEnabled = false;
-        context.imageSmoothingEnabled = false;
-        context.drawImage(newCanvas, 0, 0);
-        return canvas;
+        context.putImageData(imageData, 0, 0, 0, 0, canvas.width, canvas.height)
+        const buffer = canvas.toBuffer('image/png')
+        return buffer;
         
+    }
+
+    hexToRgb(hex) {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
     }
     
 }
