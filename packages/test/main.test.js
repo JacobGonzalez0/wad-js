@@ -85,7 +85,6 @@ describe("Load WAD file", () =>{
     
     test("Write Mus from WAD to midi", () =>{
         fs.writeFileSync(dir + '/music.mid', Buffer.from(mus))
-        console.log(mime.lookup(dir + '/music.mid'))
         expect(mime.lookup(dir + '/music.mid')).toEqual(
             "audio/midi"
         );
