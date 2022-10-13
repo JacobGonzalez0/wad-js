@@ -6,4 +6,6 @@ const Mus2midi = require('./wad/mus2midi');
 const Constants = require('./wad/constants');
 const Playpal = require('./wad/playpal');
 
-module.exports = { Wad, Graphic, MapData, Flat, Mus2midi, Constants, Playpal}
+
+const WadJS = { Wad, Graphic, MapData, Flat, Mus2midi, Constants, Playpal}
+module.exports = WadJS

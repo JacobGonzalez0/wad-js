@@ -7,7 +7,6 @@
     "dev": "nodemon main.js"
   },
   "dependencies": {
-    "canvas": "^2.10.1",
-    "filereader": "^0.10.3"
+    "canvas": "^2.10.1"
   }
 }

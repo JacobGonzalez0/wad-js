@@ -1,14 +1,14 @@
 {
   "name": "wad-js",
   "version": "1.0.0",
-  "main": "main.js",
+  "main": "./packages/src/main.js",
   "private": true,
   "repository": "https://github.com/JacobGonzalez0/wad-js.git",
   "license": "MIT",
-  "workspaces" : [
+  "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "test" : "yarn workspace test run start"
+    "test": "yarn workspace test run start"
   }
 }

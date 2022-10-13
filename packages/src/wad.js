@@ -1,4 +1,3 @@
-const FileReader = require("filereader")
 const Playpal = require("./wad/playpal")
 const Colormap = require("./wad/colormap")
 const fs = require("fs");
