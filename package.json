@@ -1,5 +1,5 @@
 {
-  "name": "wad-js",
+  "name": "@jacobgonzalez0/wad-js",
   "version": "1.0.0",
   "main": "./packages/src/main.js",
   "private": true,
@@ -9,6 +9,12 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "yarn workspace test run start"
+    "test": "yarn workspace test run start",
+  },
+  "dependencies": {
+    "canvas": "^2.10.1"
+  },
+  "publishConfig": {
+    "@jacobgonzalez0:registry": "https://npm.pkg.github.com"
   }
 }
