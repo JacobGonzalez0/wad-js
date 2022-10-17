@@ -16,14 +16,38 @@ class Flat{
     }
     
     
-    getImageData(wad) {
+    /**
+     * 
+     * @param {*} palleteData | Place a wad or playpal file
+     * @param {Number} palette | Choose the palette index
+     * @returns Buffer with png data
+     */
+    getImageData(palleteData, pallete) {
+
+        let p = pallete;
+        let pd;
+        try{
+            switch(palleteData.constructor.name){
+                case "Wad": pd = palleteData.playpal.palettes[p]
+                    break; 
+                case "Playpal": pd = palleteData.palettes[p]
+                    break; 
+                default: 
+                    throw Error("Unknown type, no palette data found")
+                    break;
+            }
+        }catch(err){
+            console.error("The pallatte data does not exist")
+            throw Error(err)
+        }
+
         const canvas = createCanvas(
             64, 
             64)
         var context = canvas.getContext("2d");
         var imageData = context.createImageData(64,64);
         for (var i = 0; i < 4096; i++) {
-            let col = this.hexToRgb(wad.playpal.palettes[0][this.data[i]]);
+            let col = this.hexToRgb(pd[this.data[i]]);
             imageData.data[(i*4)+0] = col.r;
             imageData.data[(i*4)+1] = col.g;
             imageData.data[(i*4)+2] = col.b;

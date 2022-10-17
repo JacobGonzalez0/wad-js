@@ -75,14 +75,29 @@ class Graphic{
     
     /**
      * 
-     * @param {*} wad | Wad file to grab pallete data
+     * @param {*} palleteData | Place a wad or playpal file
+     * @param {Number} palette | Choose the palette index
      * @returns Buffer with png data
      */
-    getImageData(wad, palette = 0) {
+    getImageData(palleteData, palette = 0 ) {
 
         let p = palette;
+        let pd;
+        try{
+            switch(palleteData.constructor.name){
+                case "Wad": pd = palleteData.playpal.palettes[p]
+                    break; 
+                case "Playpal": pd = palleteData.palettes[p]
+                    break; 
+                default: 
+                    throw Error("Unknown type, no palette data found")
+                    break;
+            }
+        }catch(err){
+            console.error("The pallatte data does not exist")
+            throw Error(err)
+        }
 
-    
         const canvas = createCanvas(
             this.width, 
             this.height)
@@ -91,7 +106,7 @@ class Graphic{
         var size = this.width * this.height;
         for (var i = 0; i < size; i++) {
             if (this.data[i] != -1) {
-                let col = this.hexToRgb(wad.playpal.palettes[p][this.data[i]]);
+                let col = this.hexToRgb(pd[this.data[i]]);
                 imageData.data[(i*4)+0] = col.r;
                 imageData.data[(i*4)+1] = col.g;
                 imageData.data[(i*4)+2] = col.b;

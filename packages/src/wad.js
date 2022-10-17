@@ -20,8 +20,12 @@ class Wad {
         this.errormsg   = null;
         this.load(dir)
 
-        this.playpal = new Playpal(this.getLumpByName("PLAYPAL"));
-        this.colormap = new Colormap(this.getLumpByName("COLORMAP"));
+        if(this.lumpExists("PLAYPAL")){
+            this.playpal = new Playpal(this.getLumpByName("PLAYPAL"));
+        }
+        if(this.lumpExists("COLORMAP")){
+            this.colormap = new Colormap(this.getLumpByName("COLORMAP"));
+        }
     }
     
 

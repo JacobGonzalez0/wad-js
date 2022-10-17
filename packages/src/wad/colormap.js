@@ -19,8 +19,30 @@ class Colormap{
         }
     }
     
-    
-    getImageData(wad) {
+    /**
+     * 
+     * @param {*} palleteData | Place a wad or playpal file
+     * @param {Number} palette | Choose the palette index
+     * @returns Buffer with png data
+     */
+    getImageData(palleteData, pallete = 0) {
+
+        let p = pallete;
+        let pd;
+        try{
+            switch(palleteData.constructor.name){
+                case "Wad": pd = palleteData.playpal.palettes[p]
+                    break; 
+                case "Playpal": pd = palleteData.palettes[p]
+                    break; 
+                default: 
+                    throw Error("Unknown type, no palette data found")
+                    break;
+            }
+        }catch(err){
+            console.error("The pallatte data does not exist")
+            throw Error(err)
+        }
 
         const canvas = createCanvas(
             256, 
@@ -29,7 +51,7 @@ class Colormap{
         var imageData = context.createImageData(256,34);
         for (var j = 0; j < 34; j++) {
             for (var i = 0; i < 256; i++) {
-                let col = this.hexToRgb(wad.playpal.palettes[0][this.colormaps[j][i]]);
+                let col = this.hexToRgb(pd[this.colormaps[j][i]]);
                 imageData.data[(((j*256)+i)*4)+0] = col.r;
                 imageData.data[(((j*256)+i)*4)+1] = col.g;
                 imageData.data[(((j*256)+i)*4)+2] = col.b;
